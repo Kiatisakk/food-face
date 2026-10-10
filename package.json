@@ -4,7 +4,8 @@
   "private": true,
   "description": "let him cook — ครัวอีโมจิอาหารและ Emoji Encoder ในหน้าเดียว",
   "scripts": {
-    "start": "../emioji-encoder/.venv/bin/python -m uvicorn apps.api.main:app --app-dir ../emioji-encoder --host 127.0.0.1 --port 5173",
-    "start:static": "npx --yes serve -l 5173 ."
+    "start": "emioji-encoder/.venv/bin/python -m uvicorn apps.api.main:app --app-dir emioji-encoder --host 127.0.0.1 --port 5173",
+    "start:static": "npx --yes serve -l 5173 .",
+    "setup:python": "python3 -m venv emioji-encoder/.venv && emioji-encoder/.venv/bin/python -m pip install -e './emioji-encoder[web]'"
   }
 }

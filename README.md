@@ -6,20 +6,40 @@
 
 ครัวอาหารประมวลผลรูปในเบราว์เซอร์ ส่วน Emoji Encoder ส่งรูปให้ FastAPI ที่รันบนเครื่องคุณ ใช้โมเดลที่ฝึกไว้เพื่อสร้างรหัสอีโมจิและประกอบรูปกลับ รองรับ PNG/JPEG/WebP ไม่เกิน 8 MB และด้านละไม่เกิน 2048 px ดาวน์โหลดหรือคัดลอกข้อความเต็ม .emotxt, ดาวน์โหลด .emoc และรูป PNG ได้ รูปที่ประกอบกลับสูญเสียรายละเอียดและต้องใช้โมเดลเดียวกับตอนแปลง
 
-หน้าเว็บเป็น HTML + CSS + JS ธรรมดา ไม่ต้อง build โดยใช้ API จากโฟลเดอร์ `../emioji-encoder` ที่อยู่ข้างกัน
+หน้าเว็บเป็น HTML + CSS + JS ธรรมดา ไม่ต้อง build โดยใช้ API จากโฟลเดอร์ `./emioji-encoder` ภายใน repository เดียวกัน
 
 ## รัน
 
 ```sh
 cd food-face       # จากโฟลเดอร์ stupidhack
+npm run setup:python # ติดตั้ง Python dependencies (ทำครั้งแรก)
 npm start          # เปิด http://127.0.0.1:5173 พร้อม API ในพอร์ตเดียวกัน
 ```
 
-ต้องมี virtual environment และ dependencies ฝั่งเว็บของ EmoCodec ก่อน หากยังไม่มี ให้ทำตามส่วน Setup ใน `../emioji-encoder/README.md` และติดตั้ง `.[dev,web]` เซิร์ฟเวอร์จะเลือก `../emioji-encoder/checkpoints/photos_v1.pt` หากมี แล้วจึงใช้ `demo.pt` เป็นตัวสำรอง กำหนดโมเดลเองได้ด้วย `EMOCODEC_CHECKPOINT=/absolute/path/model.pt npm start`
+โปรเจกต์ EmoCodec อยู่ภายใน `emioji-encoder/` โดย `npm run setup:python` จะสร้าง Python virtual environment และติดตั้ง Dependencies ให้เอง เซิร์ฟเวอร์เลือก `emioji-encoder/checkpoints/photos_v1.pt` ที่เก็บใน repository กำหนดโมเดลเองได้ด้วย `EMOCODEC_CHECKPOINT=/absolute/path/model.pt npm start`
 
 หากต้องการใช้เฉพาะครัวอาหารแบบเดิม ใช้ `npm run start:static` หรือดับเบิลคลิก `index.html` ได้ ในโหมดนี้ Encoder จะแสดงสถานะเชื่อมต่อไม่ได้และปิดปุ่มแปลงรูป
 
 เมื่อเปิดไฟล์ตรง ๆ รูปตัวอย่างในครัวจะเป็นหน้าเชฟที่วาดขึ้น เพื่อให้ canvas และการบันทึก PNG ใช้ได้แม้เบราว์เซอร์จำกัดภาพจาก `file://` หน้าเปิดยังแสดงมีม shef ตามปกติ
+
+
+## โครงสร้างโปรเจกต์แบบรวม
+
+```text
+food-face/
+├── package.json
+├── index.html                 # ครัว Food Emoji
+├── codec.js                   # UI Encoder/Decoder
+└── emioji-encoder/            # Backend และโมเดล AI ใน repo เดียวกัน
+    ├── apps/api/main.py       # FastAPI
+    ├── src/emocodec/          # Encoder/Decoder แบบ VQ-VAE
+    ├── checkpoints/photos_v1.pt # โมเดลที่เทรนแล้ว (tracked)
+    └── notebooks/EmoCodec_Train_Colab.ipynb
+```
+
+Clone repo นี้แล้วรัน `npm run setup:python` และ `npm start` จาก root ได้ ไม่ต้อง Clone หรือเตรียม sibling directory อีกชุด ไม่ต้อง Push `.venv`, `datasets`, หรือ `outputs` ขึ้น GitHub โมเดล `photos_v1.pt` ขนาดประมาณ 3.6 MB ถูก commit เพื่อให้ทดลอง Encode/Decode ได้หลังติดตั้ง
+
+> หมายเหตุ: ตัว Server ใช้ CPU โดยค่าเริ่มต้น และโมเดลเป็น Learned Lossy Codec ไม่ใช่ Encryption. ใช้ GitHub Repo นี้เป็น source เดียว ส่วน checkout เดิมนอกโฟลเดอร์เก็บไว้สำรองชั่วคราว
 
 ## ไฟล์
 

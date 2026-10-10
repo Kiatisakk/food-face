@@ -1,0 +1,6 @@
+{
+  "architecture": {"hidden": 48, "embedding_dim": 64, "codebook_size": 256, "beta": 0.25},
+  "training": {"size": 256, "epochs": 30, "batch_size": 8, "learning_rate": 0.0002, "seed": 42},
+  "format": {"stride": 16, "text_extension": ".emotxt", "binary_extension": ".emoc", "alphabet_version": 1},
+  "note": "Documentation of CLI default architecture; training quality requires a real dataset."
+}

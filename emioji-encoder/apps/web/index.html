@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#0e1011"/>
+  <title>EmoCodec — Images to emojis and back</title>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Arial;color:#ebebe6;background:#0e1011}
+    *{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit}button{cursor:pointer}
+    .wrap{max-width:1300px;margin:auto;padding:32px clamp(18px,4vw,58px) 64px}
+    header{display:flex;justify-content:space-between;gap:18px;align-items:center;border-bottom:1px solid #2a2d2e;padding-bottom:23px}
+    .brand{display:flex;gap:12px;align-items:center;font-weight:800;font-size:23px;letter-spacing:-1px}
+    .brand-icon{background:#ceff76;color:#101411;border-radius:13px;padding:10px;font-size:22px}
+    .status{color:#a7b1a2;font-size:12px;display:flex;align-items:center;gap:8px}
+    .dot{background:#eebd67;width:7px;height:7px;border-radius:100%}.ready .dot{background:#b2f273}
+    h1{font-size:clamp(39px,6vw,80px);letter-spacing:-.075em;font-weight:650;line-height:1.02;margin:54px 0 18px;max-width:950px}
+    h1 em{font-family:Georgia,serif;color:#ceff76;font-weight:400}p.lead{font-size:16px;color:#9fa5a0;line-height:1.75;max-width:650px}
+    .workspace{margin-top:40px;display:grid;grid-template-columns:minmax(290px,.87fr) minmax(0,1.13fr);gap:17px}
+    .panel{border:1px solid #303637;border-radius:23px;background:#171a1b;padding:24px;min-width:0}
+    .panel-title{font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:750;color:#b5c1b4;margin:0 0 21px}
+    .tabs{display:flex;background:#222728;border-radius:13px;padding:4px;margin-bottom:19px;gap:4px}
+    .tab{flex:1;border:0;border-radius:9px;background:transparent;color:#b9bdba;padding:12px;font-size:13px;font-weight:650}
+    .tab.active{background:#404b41;color:white}
+    .drop{border:1px dashed #5b685b;border-radius:18px;background:#1e2421;min-height:245px;display:flex;align-items:center;justify-content:center;text-align:center;flex-direction:column;padding:22px;transition:.2s;overflow:hidden;position:relative}
+    .drop.drag{border-color:#ceff76;background:#29362a}
+    .drop>svg{color:#ceff76;margin-bottom:17px}
+    .drop strong{font-size:17px}.muted{color:#909992;font-size:12px;line-height:1.65}
+    .drop img{max-width:100%;max-height:230px;object-fit:contain;border-radius:12px}
+    .input-hidden{display:none}
+    .file-label{margin-top:15px;border:1px solid #657063;padding:10px 18px;border-radius:10px;display:inline-block;font-size:12px;cursor:pointer}
+    .btn{border:0;border-radius:12px;padding:15px 18px;background:#ceff76;color:#121710;font-weight:750;width:100%;margin-top:17px}
+    .btn:hover:not(:disabled){background:#e4ffa8}.btn:disabled{opacity:.5;cursor:wait}
+    .btn-secondary{border:1px solid #3e4840;background:#232a25;color:#d4e5d0;padding:11px 12px;margin:0;border-radius:10px;font-size:12px;font-weight:700}
+    .btn-secondary:hover{background:#36443a}.hidden{display:none!important}
+    .label{font-size:12px;color:#9da59c;margin-bottom:9px}.textarea{width:100%;height:225px;border:1px solid #3b4540;background:#121617;color:#d3ff9f;border-radius:12px;padding:14px;resize:vertical;font-size:13px;line-height:1.7;outline:none}
+    .small-caption{color:#929c91;font-size:12px;line-height:1.6;margin:13px 0 0}
+    .placeholder{display:grid;place-content:center;text-align:center;min-height:330px;gap:10px;color:#8b938e}
+    .placeholder span{font-size:45px;letter-spacing:5px}
+    .compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .compare figure{margin:0;position:relative;background:#222628;border:1px solid #303638;min-height:220px;border-radius:13px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .compare img{width:100%;height:100%;max-height:330px;object-fit:contain}
+    .compare figcaption{position:absolute;left:10px;top:10px;border-radius:7px;padding:6px 9px;font-size:10px;background:#111b19c9;color:#eaffd0}
+    .numbers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:16px 0}
+    .number{background:#222726;border:1px solid #303936;border-radius:11px;padding:12px;min-width:0}
+    .number strong{display:block;font-size:22px;letter-spacing:-1px;overflow:hidden;text-overflow:ellipsis}
+    .number label{display:block;font-size:10px;color:#a5afa6;margin-top:6px}
+    .token-head{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px;gap:12px}
+    .token-box{color:#dfedda;border:1px solid #394139;background:#111616;border-radius:13px;padding:15px;font-size:19px;line-height:1.85;overflow:auto;max-height:145px;overflow-wrap:anywhere;min-height:80px}
+    .token-actions{display:flex;flex-wrap:wrap;gap:7px}
+    .notice{font-size:12px;color:#dfad85;margin-top:12px;white-space:pre-wrap}
+    footer{color:#727b74;margin-top:32px;font-size:11px;line-height:1.8}
+    @media(max-width:850px){.workspace{grid-template-columns:1fr}header{align-items:flex-start}h1{margin-top:36px}.wrap{padding-top:22px}}
+    @media(max-width:420px){.panel{padding:16px}.numbers{gap:5px}.number{padding:8px}.number strong{font-size:18px}.compare figure{min-height:170px}.brand{font-size:21px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="brand-icon">🐸</div>EMOCODEC<span style="font-size:12px;font-weight:400;color:#858d88;letter-spacing:0"> / LAB</span></div>
+    <div class="status" id="status"><span class="dot"></span><span id="statusLabel">Checking local model…</span></div>
+  </header>
+  <h1>Images, distilled<br>into <em>emoji.</em></h1>
+  <p class="lead">Encode any image into a sequence of arbitrary emoji tokens, then reconstruct it with a learned VQ-VAE neural decoder. A playful experiment in the limits of compression.</p>
+  <section class="workspace">
+    <div class="panel">
+      <div class="panel-title">01 / Codec input</div>
+      <div class="tabs"><button class="tab active" id="encodeTab">Encode image</button><button class="tab" id="decodeTab">Decode emojis</button></div>
+      <div id="encodeSection">
+        <div class="drop" id="drop">
+          <svg id="uploadIcon" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 16V3m0 0-5 5m5-5 5 5M3 16v4h18v-4"/></svg>
+          <img id="inputPreview" class="hidden" alt="Uploaded original image"/>
+          <strong id="dropTitle">Drop an image here</strong>
+          <span class="muted" id="dropHelp">PNG, JPEG or WebP · up to 8 MB and 2048px</span>
+          <label class="file-label" for="imageInput">Choose image</label>
+          <input class="input-hidden" id="imageInput" type="file" accept="image/png,image/jpeg,image/webp"/>
+        </div>
+        <button class="btn" id="encodeButton" disabled>Encode to emoji →</button>
+      </div>
+      <div id="decodeSection" class="hidden">
+        <div class="label">Paste the full .emotxt payload (including metadata)</div>
+        <textarea id="decodeText" class="textarea" placeholder='{"magic":"EMOTXT1","emoji":"..."}'></textarea>
+        <p class="small-caption">Or choose a .emotxt / .emoc file. The decoder requires matching model weights and metadata.</p>
+        <label class="file-label" for="codecInput">Choose encoded file</label>
+        <input class="input-hidden" id="codecInput" type="file" accept=".emotxt,.emoc,text/plain,application/json,application/octet-stream"/>
+        <div class="small-caption" id="selectedCodec"></div>
+        <button class="btn" id="decodeButton">Decode back to image →</button>
+      </div>
+      <div class="notice" id="error"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">02 / Reconstruction</div>
+      <div class="placeholder" id="placeholder"><span>🌙🪐🐸🌵</span><div>Upload an image to see the neural reconstruction.</div><div class="muted">Requires a locally trained model checkpoint.</div></div>
+      <div id="result" class="hidden">
+        <div class="compare">
+          <figure id="originalFigure"><img id="originalView" alt="Original uploaded image"><figcaption>ORIGINAL</figcaption></figure>
+          <figure><img id="decodedView" alt="Reconstructed image"><figcaption>DECODED</figcaption></figure>
+        </div>
+        <div class="numbers">
+          <div class="number"><strong id="tokens">—</strong><label>EMOJI TOKENS</label></div>
+          <div class="number"><strong id="binary">—</strong><label>BINARY SIZE</label></div>
+          <div class="number"><strong id="psnr">—</strong><label>PSNR (dB)</label></div>
+        </div>
+        <div id="tokenSection">
+          <div class="token-head"><div class="label" style="margin:0">ENCODED EMOJIS</div><div class="token-actions">
+            <button class="btn-secondary" id="copyButton">Copy payload</button>
+            <button class="btn-secondary" id="textButton">.emotxt ↓</button>
+            <button class="btn-secondary" id="binaryButton">.emoc ↓</button>
+          </div></div>
+          <div id="tokenBox" class="token-box"></div>
+          <p class="small-caption" id="fileStats"></p>
+        </div>
+        <button class="btn-secondary" id="saveImageButton" style="width:100%;margin-top:10px">Download reconstructed PNG ↓</button>
+      </div>
+    </div>
+  </section>
+  <footer>RESEARCH PROTOTYPE • Emoji labels are not semantically related to objects in the image. The compressed result is lossy; generated details may differ from reality. Current demo uses a fixed-stride VQ-VAE, not an optimized commercial codec.</footer>
+</div>
+<script>
+  const el = id => document.getElementById(id);
+  let imageFile=null, codecFile=null, previewUrl=null, lastResult=null;
+  function setError(message){el("error").textContent=message||"";}
+  function setWorking(button,on,normal){button.disabled=on;button.textContent=on?"Working…":normal;}
+  function downloadBytes(bytes,name,type){const blob=new Blob([bytes],{type:type});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+  function fromBase64(b64){const binary=atob(b64);const bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return bytes;}
+  function imageSelected(file){if(!file)return;imageFile=file;if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(file);el("inputPreview").src=previewUrl;el("inputPreview").classList.remove("hidden");el("uploadIcon").classList.add("hidden");el("dropTitle").textContent=file.name;el("dropHelp").textContent=(file.size/1024).toFixed(1)+" KB";el("encodeButton").disabled=false;}
+  el("imageInput").onchange=e=>imageSelected(e.target.files[0]);
+  const drop=el("drop");
+  drop.ondragover=e=>{e.preventDefault();drop.classList.add("drag")};
+  drop.ondragleave=()=>drop.classList.remove("drag");
+  drop.ondrop=e=>{e.preventDefault();drop.classList.remove("drag");imageSelected(e.dataTransfer.files[0])};
+  function tab(mode){const encode=mode==="encode";el("encodeTab").classList.toggle("active",encode);el("decodeTab").classList.toggle("active",!encode);el("encodeSection").classList.toggle("hidden",!encode);el("decodeSection").classList.toggle("hidden",encode);setError("");}
+  el("encodeTab").onclick=()=>tab("encode");el("decodeTab").onclick=()=>tab("decode");
+  el("codecInput").onchange=e=>{codecFile=e.target.files[0]||null;el("selectedCodec").textContent=codecFile?"Selected: "+codecFile.name:"";};
+  function showResult(png){el("placeholder").classList.add("hidden");el("result").classList.remove("hidden");el("decodedView").src="data:image/png;base64,"+png;}
+  el("encodeButton").onclick=async()=>{
+    if(!imageFile)return;
+    const btn=el("encodeButton");setWorking(btn,true,"Encode to emoji →");setError("");
+    try{const body=new FormData();body.append("image",imageFile);
+      const res=await fetch("/api/encode",{method:"POST",body});const data=await res.json();if(!res.ok)throw Error(data.detail||"Encode failed");
+      lastResult=data;el("originalFigure").classList.remove("hidden");el("originalView").src=previewUrl;
+      showResult(data.reconstructed_png_base64);
+      el("tokenSection").classList.remove("hidden");
+      const content=JSON.parse(data.text);el("tokenBox").textContent=content.emoji;
+      el("tokens").textContent=data.tokens.toLocaleString();el("binary").textContent=data.binary_bytes+" B";el("psnr").textContent=typeof data.psnr==="number"?data.psnr.toFixed(1):"∞";
+      el("fileStats").textContent="Emoji UTF-8: "+data.text_bytes+" B · Packed: "+data.binary_bytes+" B · "+data.bpp+" bits/pixel";
+    }catch(error){setError(error.message)}
+    finally{setWorking(btn,false,"Encode to emoji →");btn.disabled=!imageFile;}
+  };
+  el("decodeButton").onclick=async()=>{
+    const btn=el("decodeButton");setWorking(btn,true,"Decode back to image →");setError("");
+    try{const body=new FormData();if(codecFile)body.append("upload",codecFile);else body.append("text",el("decodeText").value);
+      const res=await fetch("/api/decode",{method:"POST",body});const data=await res.json();if(!res.ok)throw Error(data.detail||"Decode failed");
+      lastResult={reconstructed_png_base64:data.reconstructed_png_base64};
+      el("originalFigure").classList.add("hidden");el("tokenSection").classList.add("hidden");showResult(data.reconstructed_png_base64);
+      el("tokens").textContent=data.tokens.toLocaleString();el("binary").textContent="—";el("psnr").textContent="—";
+    }catch(error){setError(error.message)}
+    finally{setWorking(btn,false,"Decode back to image →");}
+  };
+  el("copyButton").onclick=async()=>{if(!lastResult?.text)return;try{await navigator.clipboard.writeText(lastResult.text);el("copyButton").textContent="Copied!";setTimeout(()=>el("copyButton").textContent="Copy payload",1300)}catch(e){setError("Clipboard unavailable; use Download .emotxt")}};
+  el("textButton").onclick=()=>{if(lastResult?.text)downloadBytes(new TextEncoder().encode(lastResult.text),"image.emotxt","text/plain;charset=utf-8")};
+  el("binaryButton").onclick=()=>{if(lastResult?.binary_base64)downloadBytes(fromBase64(lastResult.binary_base64),"image.emoc","application/octet-stream")};
+  el("saveImageButton").onclick=()=>{if(lastResult?.reconstructed_png_base64)downloadBytes(fromBase64(lastResult.reconstructed_png_base64),"reconstructed.png","image/png")};
+  fetch("/api/status").then(r=>r.json()).then(s=>{
+    el("status").classList.toggle("ready",s.ready);
+    el("statusLabel").textContent=s.ready?"Model: "+s.model_file+(s.demo_model?" (demo only)":""):"No checkpoint: train a model first";
+  }).catch(()=>el("statusLabel").textContent="API unavailable");
+</script>
+</body>
+</html>
