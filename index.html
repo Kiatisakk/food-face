@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>หน้าฉันกินได้</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>หน้าฉัน<span>กินได้</span></h1>
+      <p class="tag">โยนรูปหน้าตัวเองลงมา แล้วเราจะหั่นเป็นพิกเซล เปลี่ยนแต่ละช่องเป็นอาหารที่สีใกล้ที่สุด ไม่มีประโยชน์อะไรเลย แต่หิวขึ้นแน่นอน</p>
+    </div>
+    <div class="stamp">ไร้ประโยชน์ 100%</div>
+  </header>
+
+  <div class="main">
+    <section class="plate">
+      <div class="drop" id="drop">
+        <canvas id="out" width="960" height="960" aria-label="ภาพหน้าที่ทำจากอาหาร"></canvas>
+        <span class="hint" id="hint">ลากรูปมาวางตรงนี้ได้เลย · ตอนนี้เป็นหน้าตัวอย่าง</span>
+      </div>
+      <div class="controls">
+        <div class="ctl">
+          <label for="cols">ความละเอียด <output id="colsOut">48</output></label>
+          <input type="range" id="cols" min="12" max="300" value="48">
+        </div>
+        <div class="ctl">
+          <label for="chaos">ความมั่วของเชฟ <output id="chaosOut">1</output></label>
+          <input type="range" id="chaos" min="1" max="6" value="1">
+        </div>
+        <label class="toggle"><input type="checkbox" id="tint" checked> ทาซอสสีเดิมรองพื้น</label>
+      </div>
+      <div class="btns">
+        <label class="file">เลือกรูป<input type="file" id="file" accept="image/*"></label>
+        <button id="shuffle" type="button">สั่งใหม่อีกจาน</button>
+        <button id="sample" type="button">ใช้หน้าตัวอย่าง</button>
+        <button id="save" type="button">บันทึกเป็น PNG</button>
+      </div>
+      <div class="flash" id="flash" aria-live="polite"></div>
+    </section>
+
+    <aside class="side">
+      <div class="receipt" id="receipt"></div>
+      <p class="note">รูปไม่ถูกส่งไปไหน ประมวลผลในเบราว์เซอร์ของคุณเท่านั้น ราคาและแคลอรี่แต่งขึ้นทั้งหมด</p>
+    </aside>
+  </div>
+</div>
+<script src="menu.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
