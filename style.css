@@ -93,6 +93,10 @@ input[type=range]::-moz-range-thumb { height: 10px; width: 10px; border-radius: 
 .btns .primary:hover { background: #ad3821; }
 .file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .save-button > span { font-size: 18px; line-height: 1; }
+.btns .handoff-button { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.btns .handoff-button:hover:not(:disabled) { background: #f8e9dd; }
+.handoff-button > span { font-size: 18px; line-height: 1; }
+.btns button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 .flash { color: var(--accent); min-height: 1.6em; font-size: 12px; margin-top: 10px; }
 .chef-comment { display: flex; align-items: center; gap: 18px; border-top: 1px solid var(--line); margin-top: 20px; padding-top: 20px; }
 .chef-comment img { width: 106px; height: 106px; object-fit: contain; transform: rotate(-4deg); }
@@ -175,6 +179,7 @@ input[type=range]::-moz-range-thumb { height: 10px; width: 10px; border-radius: 
   .hint { font-size: 9px; left: 8px; bottom: 8px; }
   .btns { display: grid; grid-template-columns: 1fr 1fr; }
   .btns button, .file { font-size: 11px; padding: 10px 8px; }
+  .btns .handoff-button { grid-column: 1 / -1; }
   .side { grid-template-columns: 1fr; gap: 16px; }
   .receipt { max-width: 320px; width: 100%; margin: auto; }
   .note { max-width: 320px; margin: auto; }

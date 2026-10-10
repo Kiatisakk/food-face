@@ -179,6 +179,7 @@ async function prepareOnIdle(order, generation) {
 }
 
 async function beginPreparation() {
+  $("sendToCodec").disabled = true;
   if (!src || !palette.length) return;
   const generation = ++prepGeneration;
   const order = settings();
@@ -249,6 +250,7 @@ function showSelectedFrame() {
     const frame = preparedFrames.get(+$("cols").value);
     if (!frame) return;
     present(frame);
+    $("sendToCodec").disabled = false;
     out.dataset.cols = frame.cols;
     out.dataset.generation = prepGeneration;
     out.dataset.sourceRevision = sourceRevision;
@@ -261,6 +263,7 @@ function showSelectedFrame() {
 function selectResolution() {
   const cols = +$("cols").value;
   $("colsOut").textContent = cols;
+  $("sendToCodec").disabled = !preparedFrames.has(cols);
   if (worker && !workerFailed) worker.postMessage({ type: "select", generation: prepGeneration, cols });
   if (preparedFrames.has(cols)) showSelectedFrame();
   else {
@@ -306,6 +309,9 @@ function canvasFromImage(image) {
 function setSource(source) {
   src = source;
   sourceRevision++;
+  // Start each newly uploaded (or sample) photo at the minimum resolution.
+  $("cols").value = "10";
+  $("colsOut").textContent = "10";
   hasFrame = false;
   cancelAnimationFrame(fadeId);
   beginPreparation();
@@ -423,6 +429,7 @@ drop.addEventListener("drop", e => {
   loadFile(e.dataTransfer.files[0]);
 });
 document.addEventListener("paste", e => {
+  if (e.defaultPrevented || e.target.closest?.("#emoji-codec")) return;
   const file = [...(e.clipboardData?.files || [])].find(f => f.type.startsWith("image/"));
   if (file) { e.preventDefault(); loadFile(file); }
 });
@@ -436,6 +443,52 @@ $("shuffle").addEventListener("click", () => {
   $("flash").textContent = "เชฟเปลี่ยนใจ จัดจานใหม่ให้แล้ว ไม่มีอะไรเหมือนเดิมแม้แต่สูตร";
 });
 $("sample").addEventListener("click", useSample);
+
+// Send the actual emoji mosaic from this kitchen into the next kitchen.
+// Hand off the cached emoji preview without re-rendering.
+$("sendToCodec").addEventListener("click", async () => {
+  if (!src || !palette.length) return;
+  const button = $("sendToCodec");
+  const originalLabel = button.innerHTML;
+  const order = settings();
+  const generation = prepGeneration;
+  button.disabled = true;
+  button.textContent = "เชฟกำลังส่งจาน…";
+  try {
+    const prepared = await waitForPreparedFrame(order.cols, generation);
+    const stillCurrent = () => generation === prepGeneration &&
+      order.sourceRevision === sourceRevision &&
+      order.cols === +$("cols").value;
+    if (!stillCurrent()) throw new Error("จานเปลี่ยนไประหว่างส่ง");
+
+    // Use the already rendered 720px preview instead of painting the mosaic again.
+    const cachedImage = prepared.canvas;
+    const transfer = document.createElement("canvas");
+    transfer.width = cachedImage.width;
+    transfer.height = cachedImage.height;
+    const transferContext = transfer.getContext("2d");
+    if (!transferContext) throw new Error("สร้างภาพสำหรับส่งต่อไม่สำเร็จ");
+    transferContext.drawImage(cachedImage, 0, 0);
+    const blob = await new Promise(resolve => transfer.toBlob(resolve, "image/png"));
+    transfer.width = transfer.height = 1;
+    if (!blob) throw new Error("แปลงจานเป็น PNG ไม่สำเร็จ");
+    if (!stillCurrent()) throw new Error("จานเปลี่ยนไประหว่างส่ง");
+    if (!window.foodFaceCodec?.receiveImage) throw new Error("ครัวถัดไปยังไม่พร้อมรับจาน");
+    const file = new File([blob], `let-him-cook-mosaic-${Date.now()}.png`, { type: "image/png" });
+    const accepted = await window.foodFaceCodec.receiveImage(file);
+    if (!accepted) throw new Error("ครัวถัดไปยังรับจานไม่ได้");
+    document.getElementById("emoji-codec").scrollIntoView({
+      behavior: reducedMotion.matches ? "auto" : "smooth", block: "start"
+    });
+    $("flash").textContent = "ส่งจานเข้าครัวถัดไปแล้ว! พร้อมแปลงเป็นรหัสอีโมจิ";
+  } catch (error) {
+    console.error("Kitchen handoff failed", error);
+    $("flash").textContent = `ส่งจานต่อไม่สำเร็จ: ${error.message}`;
+  } finally {
+    button.innerHTML = originalLabel;
+    button.disabled = !preparedFrames.has(+$("cols").value);
+  }
+});
 $("save").addEventListener("click", async () => {
   if (!src || !palette.length) return;
   const button = $("save");

@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>let him cook — เชฟครับ นั่นหน้าผม</title>
-  <meta name="description" content="โยนรูปหน้าลงครัว แล้วให้เชฟแปลงเป็นอีโมจิอาหาร พร้อมใบเสร็จที่ไม่มีใครอยากจ่าย ประโยชน์ 0% ความมั่นใจ 100%">
+  <meta name="description" content="โยนรูปหน้าลงครัว ให้เชฟแปลงเป็นอีโมจิอาหาร พร้อม Emoji Encoder ที่ย่อรูปเป็นรหัสอีโมจิแล้วประกอบกลับเป็นรูปได้">
   <meta name="theme-color" content="#f3efe6">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="codec.css">
 </head>
 <body>
 <section class="welcome" id="welcome" aria-labelledby="welcomeTitle">
@@ -40,7 +41,13 @@
     <div class="stamp">STUPID CERTIFIED<br><strong>ไร้ประโยชน์ 100%</strong></div>
   </header>
 
-  <div class="main">
+  <nav class="kitchen-nav" aria-label="เลือกครัว">
+    <a href="#food-kitchen"><span>01</span> ครัวอาหาร</a>
+    <a href="#emoji-codec"><span>02</span> Emoji Encoder <span aria-hidden="true">↓</span></a>
+    <a href="#emoji-decoder"><span>03</span> Emoji Decoder <span aria-hidden="true">↓</span></a>
+  </nav>
+
+  <div class="main" id="food-kitchen">
     <section class="plate">
       <div class="plate-heading"><span><i class="status-dot" aria-hidden="true"></i> ครัวเปิดแล้ว</span><span id="plateState">จานทดลองของเชฟ</span></div>
       <div class="drop" id="drop">
@@ -50,8 +57,8 @@
       </div>
       <div class="controls">
         <div class="ctl">
-          <label for="cols">ความละเอียดของจาน <output id="colsOut" for="cols">50</output></label>
-          <input type="range" id="cols" min="10" max="300" step="10" value="50" aria-describedby="resolutionHelp">
+          <label for="cols">ความละเอียดของจาน <output id="colsOut" for="cols">10</output></label>
+          <input type="range" id="cols" min="10" max="300" step="10" value="10" aria-describedby="resolutionHelp">
           <div class="range-labels" id="resolutionHelp"><span>พอรู้ว่าเป็นคน</span><span>อาหารระดับโมเลกุล</span></div>
         </div>
         <div class="ctl">
@@ -67,6 +74,7 @@
         <button id="shuffle" type="button">สั่งใหม่อีกจาน</button>
         <button id="sample" type="button">ใช้หน้าเชฟ</button>
         <button id="save" class="save-button" type="button">รับอาหารกลับบ้าน <span aria-hidden="true">↓</span></button>
+        <button id="sendToCodec" class="handoff-button" type="button" disabled>ส่งต่อเข้าครัวถัดไป <span aria-hidden="true">↓</span></button>
       </div>
       <div class="flash" id="flash" aria-live="polite"></div>
       <div class="chef-comment"><img src="assets/let-him-cook.png" width="680" height="681" alt="มีม Woody ห้าม Sora พร้อมข้อความ hollup... Let him cook" loading="lazy"><p><strong>“ใจเย็น... ให้เขาทำ”</strong><span>— คนที่ไม่ต้องกินจานนี้</span></p></div>
@@ -78,10 +86,120 @@
       <figure class="rat-review"><img src="assets/let-him-cook-rat.jpg" width="500" height="721" alt="มีมวาดหนูใส่หมวกเชฟ พร้อมข้อความ hol up... let him cook!" loading="lazy"><figcaption>ผู้ช่วยเชฟ <span>ไม่ได้จ้าง มันมาเอง</span></figcaption></figure>
     </aside>
   </div>
+
+  <section class="codec" id="emoji-codec" aria-labelledby="codecTitle">
+    <header class="codec-header">
+      <div>
+        <p class="codec-eyebrow">02 / ครัวเข้ารหัส · EMOCODEC</p>
+        <h2 id="codecTitle">emoji <span>encoder.</span></h2>
+        <p class="tag">เปลี่ยนภาพจากครัวแรกให้กลายเป็นสูตรอีโมจิที่คัดลอกและส่งต่อได้</p>
+      </div>
+      <div class="stamp">ครัวที่สอง<br><strong>หั่นเป็นรหัส</strong></div>
+    </header>
+
+    <div class="codec-toolbar">
+      <span>ภาพอีโมจิ → รหัสอีโมจิ · ยังไม่ประกอบรูปกลับ</span>
+      <div class="codec-status" id="codecStatus" role="status">
+        <i class="status-dot" aria-hidden="true"></i>
+        <span id="codecStatusLabel">กำลังเช็กครัว…</span>
+        <button class="codec-retry" id="codecRetry" type="button" hidden>เชื่อมต่อใหม่ ↻</button>
+      </div>
+    </div>
+
+    <div class="codec-workspace">
+      <div class="codec-input">
+        <h3 class="codec-panel-heading">01 / รับจานจากครัวแรก</h3>
+        <div class="codec-drop" id="codecDrop">
+          <div class="codec-drop-art" id="codecDropArt" aria-hidden="true"><span>🖼️</span><span>→</span><span>🐸🍊🌙</span></div>
+          <img class="codec-input-preview" id="codecInputPreview" alt="ภาพที่เตรียมสำหรับเข้ารหัสเป็นอีโมจิ" hidden>
+          <strong id="codecDropTitle">ส่งจานจากครัวแรกมาได้เลย</strong>
+          <span class="codec-caption" id="codecDropHelp">หรือเลือก PNG, JPEG, WebP · ไม่เกิน 8 MB · ด้านละไม่เกิน 2048 px</span>
+          <label class="file" for="codecImageInput">＋ เลือกรูปเอง<input id="codecImageInput" type="file" accept="image/png,image/jpeg,image/webp" aria-label="เลือกรูปสำหรับ Emoji Encoder"></label>
+        </div>
+        <div class="btns codec-source-actions"><button id="codecSample" type="button">ใช้หน้าเชฟ</button><span class="codec-caption">ลากรูปมาวาง · วางจากคลิปบอร์ดก็ได้</span></div>
+        <button class="primary codec-submit" id="codecEncodeButton" type="button" disabled>หั่นรูปเป็นอีโมจิ <span aria-hidden="true">→</span></button>
+        <p class="codec-caption codec-privacy">รูปในครัวนี้ส่งให้เซิร์ฟเวอร์ EmoCodec บนเครื่องคุณประมวลผล</p>
+        <p class="codec-notice" id="codecNotice" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="codec-output" id="codecOutput" aria-busy="false">
+        <h3 class="codec-panel-heading">02 / สูตรอีโมจิที่ได้</h3>
+        <div class="codec-placeholder" id="codecPlaceholder">
+          <div class="codec-placeholder-emojis" aria-hidden="true">🍅 🥦 🍞 🥕</div>
+          <strong>รอเชฟเข้ารหัสวัตถุดิบ</strong>
+          <p>ส่งรูปมาแล้วกดหั่น ผลลัพธ์จะเป็นรหัสอีโมจิ ไม่ใช่รูปที่ Decode แล้ว</p>
+          <span class="codec-caption">คัดลอกสูตรหรือดาวน์โหลดไฟล์เพื่อส่งต่อไปครัวสุดท้าย</span>
+        </div>
+        <div class="codec-result" id="codecResult" hidden>
+          <dl class="codec-stats">
+            <div><dt>อีโมจิที่ใช้</dt><dd id="codecTokens">—</dd></div>
+            <div><dt>ขนาดไฟล์ .emoc</dt><dd id="codecBinarySize">—</dd></div>
+            <div><dt>บิตต่อพิกเซล</dt><dd id="codecBpp">—</dd></div>
+          </dl>
+          <div class="codec-token-heading"><h4>รหัสอีโมจิของจานนี้</h4><span>สูตรสำหรับครัวที่สาม</span></div>
+          <div class="codec-token-box" id="codecTokenBox" role="region" aria-label="รหัสอีโมจิที่ได้จากรูป" tabindex="0"></div>
+          <p class="codec-caption" id="codecFileStats"></p>
+          <div class="btns codec-downloads">
+            <button id="codecCopy" type="button">คัดลอกสูตร</button>
+            <button id="codecDownloadText" type="button">.emotxt ↓</button>
+            <button id="codecDownloadBinary" type="button">.emoc ↓</button>
+          </div>
+          <button id="codecToDecoder" class="codec-handoff" type="button">ส่งสูตรไปครัวสุดท้าย <span aria-hidden="true">↓</span></button>
+          <p class="codec-caption">คัดลอกสูตรแล้ววางในช่อง Decoder ด้านล่างก็ได้ (คัดลอกทั้งรหัสและข้อมูลกำกับ)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="decoder-section" id="emoji-decoder" aria-labelledby="decoderTitle">
+    <header class="codec-header">
+      <div>
+        <p class="codec-eyebrow">03 / ครัวประกอบกลับ · EMOCODEC</p>
+        <h2 id="decoderTitle">emoji <span>decoder.</span></h2>
+        <p class="tag">เอาสูตรอีโมจิที่คัดลอกมาใส่ แล้วค่อยประกอบกลับเป็นรูปภาพ</p>
+      </div>
+      <div class="stamp">ครัวสุดท้าย<br><strong>คืนร่างให้จาน</strong></div>
+    </header>
+
+    <div class="codec-workspace">
+      <div class="codec-input">
+        <h3 class="codec-panel-heading">01 / วางสูตรอีโมจิ</h3>
+        <label class="codec-field-label" for="codecDecodeText">วางสูตรที่คัดลอกจาก Encoder</label>
+        <textarea class="codec-textarea" id="codecDecodeText" placeholder='{"magic":"EMOTXT1","emoji":"🐸🍊🌙…",…}' spellcheck="false" aria-describedby="codecDecodeHelp"></textarea>
+        <p class="codec-caption" id="codecDecodeHelp">ต้องวางสูตรเต็มที่มีข้อมูลกำกับ ไม่ใช่เฉพาะตัวอีโมจิ หรือเลือกไฟล์ .emotxt / .emoc ที่บันทึกไว้</p>
+        <div class="btns codec-source-actions">
+          <label class="file" for="codecFileInput">＋ เลือกไฟล์ .emotxt / .emoc<input id="codecFileInput" type="file" accept=".emotxt,.emoc" aria-label="เลือกไฟล์รหัสอีโมจิเพื่อประกอบกลับเป็นรูป"></label>
+          <button id="codecClearFile" type="button" hidden>เอาไฟล์ออก</button>
+        </div>
+        <p class="codec-caption codec-selected-file" id="codecSelectedFile" role="status"></p>
+        <button class="primary codec-submit" id="codecDecodeButton" type="button" disabled>ประกอบกลับเป็นรูป <span aria-hidden="true">→</span></button>
+        <p class="codec-notice" id="codecDecodeNotice" role="status" aria-live="polite"></p>
+      </div>
+      <div class="codec-output" id="codecDecodeOutput" aria-busy="false">
+        <h3 class="codec-panel-heading">02 / จานที่ประกอบกลับ</h3>
+        <div class="codec-placeholder" id="codecDecodePlaceholder">
+          <div class="codec-placeholder-emojis" aria-hidden="true">🧩 🍊 🐸 🧩</div>
+          <strong>ยังไม่เริ่มประกอบรูป</strong>
+          <p>ใส่สูตรแล้วกด “ประกอบกลับเป็นรูป” ภาพจึงจะปรากฏที่นี่</p>
+          <span class="codec-caption">ภาพอาจไม่เหมือนต้นฉบับทั้งหมด เพราะเป็นการเข้ารหัสแบบสูญเสียรายละเอียด</span>
+        </div>
+        <div class="codec-result" id="codecDecodeResult" hidden>
+          <figure class="codec-decoded-figure">
+            <figcaption>ผลลัพธ์จากการ Decode</figcaption>
+            <div><img id="codecDecodedView" alt="ภาพที่ประกอบกลับจากรหัสอีโมจิ"></div>
+          </figure>
+          <div class="btns codec-save"><button id="codecSaveImage" type="button">รับรูปกลับบ้าน <span aria-hidden="true">↓</span></button></div>
+        </div>
+      </div>
+    </div>
+    <p class="codec-footnote">สูตรของ Encoder ต้องใช้โมเดลเดียวกันในการ Decode · หากนำรหัสมาจากที่อื่นให้เลือกไฟล์หรือวางสูตรเต็มก่อนเริ่มประกอบ</p>
+  </section>
+
   <footer class="kitchen-footer"><span>let him cook. <span class="footer-aside">please don't actually eat this.</span></span><details class="meme-credit"><summary>มีมจากไหน ↗</summary><p><a href="https://imgflip.com/i/7imzuy" target="_blank" rel="noopener noreferrer">หนูเชฟ · Imgflip</a><br><a href="https://knowyourmeme.com/photos/2517089-let-him-cook-let-that-boy-cook" target="_blank" rel="noopener noreferrer">Let Him Cook · Know Your Meme</a></p></details></footer>
 </main>
 <script src="menu.js"></script>
 <script src="renderer.js"></script>
 <script src="app.js"></script>
+<script src="codec.js"></script>
 </body>
 </html>
