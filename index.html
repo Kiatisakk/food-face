@@ -3,54 +3,85 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>หน้าฉันกินได้</title>
+  <title>let him cook — เชฟครับ นั่นหน้าผม</title>
+  <meta name="description" content="โยนรูปหน้าลงครัว แล้วให้เชฟแปลงเป็นอีโมจิอาหาร พร้อมใบเสร็จที่ไม่มีใครอยากจ่าย ประโยชน์ 0% ความมั่นใจ 100%">
+  <meta name="theme-color" content="#f3efe6">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <h1>หน้าฉัน<span>กินได้</span></h1>
-      <p class="tag">โยนรูปหน้าตัวเองลงมา แล้วเราจะหั่นเป็นพิกเซล เปลี่ยนแต่ละช่องเป็นอาหารที่สีใกล้ที่สุด ไม่มีประโยชน์อะไรเลย แต่หิวขึ้นแน่นอน</p>
+<section class="welcome" id="welcome" aria-labelledby="welcomeTitle">
+  <div class="welcome-top"><span>ร้านอาหารที่ไม่ควรมีอยู่จริง</span><span>EST. 5 MINUTES AGO</span></div>
+  <div class="welcome-content">
+    <p class="eyebrow">ฝีมือ 0% · ความมั่นใจ 100%</p>
+    <h1 id="welcomeTitle">let him <span>cook.</span></h1>
+    <div class="welcome-stage">
+      <div class="chef-credit" aria-hidden="true">executive<br><strong>shef</strong><span>↗</span></div>
+      <img class="welcome-chef" src="assets/shef.png" width="498" height="275" alt="มีม shef: เชฟหน้าเรียบยืนกอดอกอย่างมั่นใจในครัว" fetchpriority="high">
+      <div class="welcome-stamp" aria-hidden="true">รับรองโดย<strong>ไม่มีใคร</strong>★ ☆ ☆ ☆ ☆</div>
     </div>
-    <div class="stamp">ไร้ประโยชน์ 100%</div>
+    <p class="welcome-line">เชฟครับ นั่นหน้าผม ไม่ใช่วัตถุดิบ</p>
+    <button class="primary enter-button" id="enter" type="button">ช่างมัน ให้เขาทำ <span aria-hidden="true">↗</span></button>
+    <p class="welcome-small">อัปโหลดหน้า → กลายเป็นอาหาร → ไม่รู้ทำไปทำไม</p>
+  </div>
+  <div class="welcome-bottom"><span>0 MICHELIN STARS. MANY EMOJIS.</span><span>ทำมาแข่ง stupid โดยเฉพาะ</span></div>
+</section>
+
+<main class="wrap" id="kitchen" hidden>
+  <h1 class="sr-only">let him cook — ครัวเปลี่ยนหน้าเป็นอาหาร</h1>
+  <header class="kitchen-header">
+    <div>
+      <button class="brand" id="back" type="button" aria-label="let him cook — กลับไปหน้าเชฟ">let him <span>cook.</span></button>
+      <p class="tag">คุณส่งหน้า เราเสิร์ฟอาหาร <span>เชฟไม่รับผิดชอบรสชาติ</span></p>
+    </div>
+    <div class="stamp">STUPID CERTIFIED<br><strong>ไร้ประโยชน์ 100%</strong></div>
   </header>
 
   <div class="main">
     <section class="plate">
+      <div class="plate-heading"><span><i class="status-dot" aria-hidden="true"></i> ครัวเปิดแล้ว</span><span id="plateState">จานทดลองของเชฟ</span></div>
       <div class="drop" id="drop">
-        <canvas id="out" width="960" height="960" aria-label="ภาพหน้าที่ทำจากอาหาร"></canvas>
-        <span class="hint" id="hint">ลากรูปมาวางตรงนี้ได้เลย · ตอนนี้เป็นหน้าตัวอย่าง</span>
+        <canvas id="out" width="1200" height="663" role="img" aria-label="ภาพหน้าที่ทำจากอีโมจิอาหาร"></canvas>
+        <span class="hint" id="hint">วางรูปตรงนี้ · หรือกดเลือกรูปด้านล่าง</span>
+        <span class="drop-invitation">วางวัตถุดิบได้เลย เชฟรับเอง</span>
       </div>
       <div class="controls">
         <div class="ctl">
-          <label for="cols">ความละเอียด <output id="colsOut">48</output></label>
-          <input type="range" id="cols" min="12" max="300" value="48">
+          <label for="cols">ความละเอียดของจาน <output id="colsOut" for="cols">50</output></label>
+          <input type="range" id="cols" min="10" max="300" step="10" value="50" aria-describedby="resolutionHelp">
+          <div class="range-labels" id="resolutionHelp"><span>พอรู้ว่าเป็นคน</span><span>อาหารระดับโมเลกุล</span></div>
         </div>
         <div class="ctl">
-          <label for="chaos">ความมั่วของเชฟ <output id="chaosOut">1</output></label>
+          <label for="chaos">ความมั่วของเชฟ <output id="chaosOut" for="chaos">1</output></label>
           <input type="range" id="chaos" min="1" max="6" value="1">
+          <div class="range-labels"><span>ตามสูตร</span><span>ตามเวรตามกรรม</span></div>
         </div>
-        <label class="toggle"><input type="checkbox" id="tint" checked> ทาซอสสีเดิมรองพื้น</label>
       </div>
+      <div class="preprocess"><span id="prepText">เชฟกำลังเตรียมจาน…</span><progress id="prepProgress" max="30" value="0" aria-label="จำนวนระดับความละเอียดที่เตรียมพร้อมแล้ว"></progress></div>
+      <label class="toggle"><input type="checkbox" id="tint" checked> ราดซอสสีเดิม <span>จะได้พอดูออกว่าใคร</span></label>
       <div class="btns">
-        <label class="file">เลือกรูป<input type="file" id="file" accept="image/*"></label>
+        <label class="file primary"><span aria-hidden="true">＋</span> โยนหน้าเข้าครัว<input type="file" id="file" accept="image/*" aria-label="เลือกรูปเพื่อเปลี่ยนเป็นอีโมจิอาหาร"></label>
         <button id="shuffle" type="button">สั่งใหม่อีกจาน</button>
-        <button id="sample" type="button">ใช้หน้าตัวอย่าง</button>
-        <button id="save" type="button">บันทึกเป็น PNG</button>
+        <button id="sample" type="button">ใช้หน้าเชฟ</button>
+        <button id="save" class="save-button" type="button">รับอาหารกลับบ้าน <span aria-hidden="true">↓</span></button>
       </div>
       <div class="flash" id="flash" aria-live="polite"></div>
+      <div class="chef-comment"><img src="assets/let-him-cook.png" width="680" height="681" alt="มีม Woody ห้าม Sora พร้อมข้อความ hollup... Let him cook" loading="lazy"><p><strong>“ใจเย็น... ให้เขาทำ”</strong><span>— คนที่ไม่ต้องกินจานนี้</span></p></div>
     </section>
 
     <aside class="side">
-      <div class="receipt" id="receipt"></div>
+      <div class="receipt" id="receipt" aria-label="ใบเสร็จอาหารที่คำนวณจากภาพ"><h2>let him cook.</h2><p class="receipt-wait">เชฟกำลังนับเม็ดข้าว…</p></div>
       <p class="note">รูปไม่ถูกส่งไปไหน ประมวลผลในเบราว์เซอร์ของคุณเท่านั้น ราคาและแคลอรี่แต่งขึ้นทั้งหมด</p>
+      <figure class="rat-review"><img src="assets/let-him-cook-rat.jpg" width="500" height="721" alt="มีมวาดหนูใส่หมวกเชฟ พร้อมข้อความ hol up... let him cook!" loading="lazy"><figcaption>ผู้ช่วยเชฟ <span>ไม่ได้จ้าง มันมาเอง</span></figcaption></figure>
     </aside>
   </div>
-</div>
+  <footer class="kitchen-footer"><span>let him cook. <span class="footer-aside">please don't actually eat this.</span></span><details class="meme-credit"><summary>มีมจากไหน ↗</summary><p><a href="https://imgflip.com/i/7imzuy" target="_blank" rel="noopener noreferrer">หนูเชฟ · Imgflip</a><br><a href="https://knowyourmeme.com/photos/2517089-let-him-cook-let-that-boy-cook" target="_blank" rel="noopener noreferrer">Let Him Cook · Know Your Meme</a></p></details></footer>
+</main>
 <script src="menu.js"></script>
+<script src="renderer.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
