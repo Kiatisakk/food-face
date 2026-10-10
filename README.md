@@ -1,80 +1,226 @@
-# let him cook
+# let him cook.
 
-เว็บสำหรับแข่ง stupid: โยนรูปหน้าลงไป แล้วมันจะหั่นเป็นพิกเซล เปลี่ยนแต่ละช่องเป็นอีโมจิอาหารที่สีใกล้ที่สุด พร้อมใบเสร็จที่ไม่มีประโยชน์ ด้านล่างเป็น Emoji Encoder ที่แปลงรูปเป็นรหัสอีโมจิและประกอบกลับเป็นรูปด้วยโมเดล EmoCodec
+**A very unnecessary image-to-food experiment.**
 
-หน้าแรกเป็นมีม shef กด “ช่างมัน ให้เขาทำ” เพื่อเข้าครัว กดชื่อเว็บเพื่อกลับไปหน้าแรก เว็บแบ่งเป็นสี่ครัวตามลำดับ: (1) ครัวอาหารทำภาพโมเสกอีโมจิ (2) Emoji Encoder แปลงภาพเป็นรหัสอีโมจิและแสดงเฉพาะสูตรพร้อมปุ่มคัดลอก/.emotxt/.emoc โดยยังไม่แสดงภาพ Decode (3) Emoji Decoder แยกเป็นส่วนด้านล่าง รับสูตรเต็มจากการวางข้อความหรืออัปโหลด .emotxt/.emoc แล้วค่อยกดประกอบกลับเพื่อแสดงภาพ (4) Food Match รับภาพที่ Decode แล้วไปลองเรียงพิกเซลเป็นจานอาหารที่ใกล้เคียง กด “ส่งต่อเข้าครัวถัดไป ↓” ในครัวแรกเพื่อส่งภาพโมเสกเข้าช่อง Encoder อัตโนมัติ หรือกด “ส่งสูตรไปครัวถอดรหัส ↓” หลัง Encode เพื่อเติมสูตรใน Decoder โดยยังไม่ Decode จนกดปุ่มเอง ทุกส่วนใช้ UI โทนครีมกับสีซอสมะเขือเทศเดียวกัน
+เว็บสำหรับ Stupid Hackathon ที่รับรูปภาพหนึ่งรูป แล้วพาไปผ่านครัวแปลก ๆ ถึง 4 ขั้น: จากภาพโมเสกอาหาร ไปเป็นรหัส Emoji ด้วย AI ถอดรหัสกลับมา และปิดท้ายด้วยการเอาพิกเซลไปเรียงให้เหมือนภาพอาหารจริง
 
-ครัวอาหารประมวลผลรูปในเบราว์เซอร์ ส่วน Emoji Encoder ส่งรูปให้ FastAPI ที่รันบนเครื่องคุณ ใช้โมเดลที่ฝึกไว้เพื่อสร้างรหัสอีโมจิและประกอบรูปกลับ รองรับ PNG/JPEG/WebP ไม่เกิน 8 MB และด้านละไม่เกิน 2048 px ดาวน์โหลดหรือคัดลอกข้อความเต็ม .emotxt, ดาวน์โหลด .emoc และรูป PNG ได้ รูปที่ประกอบกลับสูญเสียรายละเอียดและต้องใช้โมเดลเดียวกับตอนแปลง
+> **หนึ่งรูป สี่ครัว และคำถามเดียว: เราทำไปเพื่ออะไร?**
 
-หน้าเว็บเป็น HTML + CSS + JS ธรรมดา ไม่ต้อง build โดยใช้ API จากโฟลเดอร์ `./emioji-encoder` ภายใน repository เดียวกัน
+โปรเจกต์นี้รวม Frontend, Python API, โมเดล VQ-VAE และ Food Match ไว้ใน **Git repository เดียว** ไม่ต้อง Clone โปรเจกต์อื่นมาติดตั้งแยก
 
-## รัน
+## Quick start
 
-```sh
-cd food-face       # จากโฟลเดอร์ stupidhack
-npm run setup:python # ติดตั้ง Python dependencies (ทำครั้งแรก)
-npm start          # เปิด http://127.0.0.1:5173 พร้อม API ในพอร์ตเดียวกัน
+### Requirements
+
+- **Python 3.10+** และ `pip`
+- **Node.js + npm** สำหรับคำสั่งเริ่มเว็บและทดสอบ
+- macOS / Linux หรือสภาพแวดล้อมที่รัน PyTorch และ FastAPI ได้
+- อินเทอร์เน็ตสำหรับติดตั้ง Dependencies และโหลดข้อมูล Food Match ในครัวที่ 4
+
+จากโฟลเดอร์หลักของ Repository:
+
+```bash
+git clone git@github.com:Kiatisakk/food-face.git
+cd food-face
+
+npm run setup:python   # ครั้งแรกเท่านั้น: สร้าง .venv และติดตั้ง EmoCodec
+npm start              # รันเว็บไซต์ + FastAPI บนพอร์ต 5173
 ```
 
-โปรเจกต์ EmoCodec อยู่ภายใน `emioji-encoder/` โดย `npm run setup:python` จะสร้าง Python virtual environment และติดตั้ง Dependencies ให้เอง เซิร์ฟเวอร์เลือก `emioji-encoder/checkpoints/photos_v1.pt` ที่เก็บใน repository กำหนดโมเดลเองได้ด้วย `EMOCODEC_CHECKPOINT=/absolute/path/model.pt npm start`
+เข้าเว็บที่ **http://127.0.0.1:5173** แล้วกด **“ช่างมัน ให้เขาทำ”** เพื่อเข้าครัว
 
-หากต้องการใช้เฉพาะครัวอาหารแบบเดิม ใช้ `npm run start:static` หรือดับเบิลคลิก `index.html` ได้ ในโหมดนี้ Encoder จะแสดงสถานะเชื่อมต่อไม่ได้และปิดปุ่มแปลงรูป
+ถ้ามีโปรเจกต์อยู่แล้ว ให้ข้ามขั้น `git clone` และ `cd` แล้วรัน `npm start` ได้เลย หากติดตั้ง Dependencies แล้ว ไม่ต้องรัน `setup:python` ซ้ำ
 
-เมื่อเปิดไฟล์ตรง ๆ รูปตัวอย่างในครัวจะเป็นหน้าเชฟที่วาดขึ้น เพื่อให้ canvas และการบันทึก PNG ใช้ได้แม้เบราว์เซอร์จำกัดภาพจาก `file://` หน้าเปิดยังแสดงมีม shef ตามปกติ
+**ไม่ต้อง Build Frontend** — เว็บไซต์เป็น HTML, CSS และ JavaScript ที่เสิร์ฟจาก FastAPI โดยตรง
 
+## How it works — 4 kitchens
 
-## โครงสร้างโปรเจกต์แบบรวม
+```text
+                    Your photo
+                        |
+                        v
+     01  FOOD KITCHEN       Image → Food Emoji Mosaic
+                        |
+                [send to next kitchen]
+                        v
+     02  EMOJI ENCODER      Image → VQ-VAE → Token IDs → Emoji
+                        |
+                [send recipe to decoder]
+                        v
+     03  EMOJI DECODER      Emoji → Token IDs → VQ-VAE → Image
+                        |
+                [send decoded image]
+                        v
+     04  FOOD MATCH         Rearrange your pixels to resemble food
+                        |
+                        v
+                   Final dish
+```
+
+| ครัว | ทำอะไร | เทคโนโลยี |
+| --- | --- | --- |
+| **01 — Food Kitchen** | เปลี่ยนรูปเป็นโมเสก Emoji อาหาร ปรับความละเอียด/ความมั่ว/สี และออกใบเสร็จปลอม | Canvas, Web Worker, JavaScript |
+| **02 — Emoji Encoder** | แปลงภาพเป็น Token IDs ของโมเดล แล้วแสดงเป็นข้อความ Emoji; คัดลอกหรือดาวน์โหลดได้ | PyTorch VQ-VAE, FastAPI |
+| **03 — Emoji Decoder** | รับสูตร Emoji หรือไฟล์จากครัวก่อนหน้า แล้วสร้างภาพกลับด้วยโมเดลเดียวกัน | VQ-VAE Decoder, FastAPI |
+| **04 — Food Match** | เทียบสีกับภาพอาหารในฐานข้อมูล 50,000 รูป แล้วจัดเรียงพิกเซลต้นทางให้คล้ายเมนูที่เลือก | Color signatures, browser Workers, pixel reassignment |
+
+### 01 / Food Kitchen
+
+อัปโหลดรูปหรือใช้รูปเชฟตัวอย่าง จากนั้นปรับ **ความละเอียด 10–300** (เพิ่มทีละ 10, ค่าเริ่มต้น 10), ความมั่ว และการราดสีเดิมบน Emoji ได้ หน้าเว็บจะแสดงภาพโมเสกกับใบเสร็จที่คำนวณตามอาหารบนภาพ
+
+ระบบเตรียมระดับความละเอียดไว้ล่วงหน้าแบบไม่บล็อกการโต้ตอบ เมื่อพร้อมแล้วกด **“ส่งต่อเข้าครัวถัดไป”** เพื่อใช้ผลลัพธ์ใน Encoder ได้ทันที หรือดาวน์โหลด PNG จากครัวนี้แยกต่างหาก
+
+ครัวแรกทำงานในเบราว์เซอร์ **ไม่อัปโหลดภาพขึ้นเซิร์ฟเวอร์**
+
+### 02 / Emoji Encoder
+
+รับภาพจากครัวแรกหรือเลือกรูปใหม่ รองรับ **PNG / JPEG / WebP**, ไฟล์สูงสุด **8 MB** และภาพไม่เกิน **2048×2048 px** ตามข้อจำกัด API
+
+Encoder ใช้โมเดล **VQ-VAE** แปลงภาพเป็นตารางรหัสจาก Codebook ขนาด 256 รายการ แล้วแมปแต่ละรหัสเป็น Emoji แบบคงที่ รหัสเหล่านี้เป็น **ตัวแทนเวกเตอร์ที่โมเดลเรียนรู้** ไม่ได้หมายถึงวัตถุที่ Emoji นั้นแสดง
+
+สามารถคัดลอกสูตรหรือดาวน์โหลดได้สองรูปแบบ:
+
+- `.emotxt` — ข้อความ JSON ที่มี Emoji tokens, metadata และ checksum
+- `.emoc` — Binary ที่เก็บ token IDs และ metadata อย่างกะทัดรัดกว่า
+
+กด **“ส่งสูตรไปครัวถอดรหัส”** เพื่อนำผลไปกรอกใน Decoder โดยไม่ต้องคัดลอกเอง
+
+### 03 / Emoji Decoder
+
+วาง **ข้อความ `.emotxt` แบบเต็ม** หรืออัปโหลด `.emotxt` / `.emoc` แล้วกด **“ประกอบกลับเป็นรูป”** สามารถดาวน์โหลด PNG หรือส่งภาพที่ Decode แล้วไปครัวที่ 4 ได้โดยตรง
+
+**ข้อจำกัดสำคัญ:** EmoCodec เป็น **lossy image compression ไม่ใช่ Encryption** ภาพที่ถอดกลับอาจสูญเสียรายละเอียด และต้องใช้ **Checkpoint ตัวเดียวกันทุกไบต์** กับตอน Encode เพื่อให้ Model ID ตรงกัน
+
+### 04 / Food Match — The Final Dish
+
+ครัวปิดท้ายใช้พิกเซลของรูปที่ Decode มาแล้ว ไปค้นหาว่าภาพอาหารรูปใดในฐานข้อมูล **50,000 ภาพ** มีการกระจายสีใกล้เคียงที่สุด จากนั้นจัดเรียงพิกเซลของรูปต้นทางให้คล้ายเมนูอาหารที่เลือก
+
+- กดปุ่ม **“ส่งรูปนี้ไปค้นหาเมนูอาหารในครัวสุดท้าย”** หลัง Decode โดยไม่ต้องอัปโหลดซ้ำ
+- หรืออัปโหลดรูปใหม่ใน Food Match เองก็ได้
+- เลือกโหมดค้นหา หมวดอาหาร ชื่อเมนู ความละเอียด และบันทึกภาพผลลัพธ์
+- แยก Canvas/CSS/Workers ไว้ใน iframe ของเว็บเดียวกัน เพื่อไม่ให้ชนกับครัวอื่น
+- **Lazy loading:** ไม่เริ่มโหลดฐานข้อมูล Food Match ตั้งแต่เปิดหน้าแรก
+
+Food Match **ไม่ใช่ Neural Decoder อีกตัว** แต่เป็นอัลกอริทึมค้นหาภาพด้วยลายเซ็นสีและจัดเรียงพิกเซล จึงเป็นการทดลองคนละแนวทางกับ VQ-VAE
+
+ดัชนีและรูปอาหารไม่ได้อยู่ใน Repo นี้ แต่โหลดจาก **[Food Match data บน GitHub Pages](https://kiatisakk.github.io/food-match/)** ซึ่งต้องใช้เน็ต ข้อมูล Food-101 มีข้อจำกัดด้านการใช้งานเพื่อการวิจัย โปรดตรวจสอบสิทธิ์ก่อนนำไปใช้เชิงพาณิชย์
+
+## Project structure
 
 ```text
 food-face/
-├── package.json
-├── index.html                 # ครัว Food Emoji
-├── codec.js                   # UI Encoder/Decoder
-└── emioji-encoder/            # Backend และโมเดล AI ใน repo เดียวกัน
-    ├── apps/api/main.py       # FastAPI
-    ├── src/emocodec/          # Encoder/Decoder แบบ VQ-VAE
-    ├── checkpoints/photos_v1.pt # โมเดลที่เทรนแล้ว (tracked)
-    └── notebooks/EmoCodec_Train_Colab.ipynb
+├── index.html                       # หน้า Welcome และทั้ง 4 ครัว
+├── style.css                        # ธีมหลัก
+├── app.js                           # ครัว Emoji Mosaic และการส่งภาพ
+├── renderer.js                      # Renderer + การเตรียมเฟรม
+├── menu.js                          # อาหาร Emoji, ราคา, แคลอรี่
+├── codec.js / codec.css             # Emoji Encoder/Decoder UI
+├── match.js / match.css             # ส่วนปิดจบ + handoff ไป Food Match
+├── assets/                          # รูปและไฟล์หน้าเว็บ
+├── package.json                     # คำสั่ง run / setup / test
+│
+├── emioji-encoder/
+│   ├── apps/api/main.py             # FastAPI + static routes
+│   ├── src/emocodec/
+│   │   ├── models/vqvae.py          # VQ-VAE Architecture
+│   │   ├── codec/                   # Emoji mapping / .emotxt / .emoc
+│   │   ├── service.py               # Encode, Decode, Benchmark
+│   │   └── training/                # Training utilities
+│   ├── checkpoints/photos_v1.pt     # โมเดลที่ใช้ในเว็บ
+│   ├── notebooks/
+│   │   └── EmoCodec_Train_Colab.ipynb
+│   ├── tests/
+│   └── pyproject.toml
+│
+└── food-match/
+    ├── index.html / style.css       # UI ของครัวสุดท้าย
+    ├── app.js                       # Crop, search, score, animate
+    ├── bridge.js                    # ส่ง PNG จาก Decoder ผ่าน postMessage
+    ├── core.js / sigcore.js         # Pixel assignment + color signatures
+    ├── worker.js                    # Search Worker
+    ├── score-worker.js              # Scoring Worker
+    ├── assign-worker.js             # Pixel-assignment Worker
+    ├── test.js
+    └── tools/                       # ตัวสร้างข้อมูลสำหรับการทดลอง
 ```
 
-Clone repo นี้แล้วรัน `npm run setup:python` และ `npm start` จาก root ได้ ไม่ต้อง Clone หรือเตรียม sibling directory อีกชุด ไม่ต้อง Push `.venv`, `datasets`, หรือ `outputs` ขึ้น GitHub โมเดล `photos_v1.pt` ขนาดประมาณ 3.6 MB ถูก commit เพื่อให้ทดลอง Encode/Decode ได้หลังติดตั้ง
+ไม่มี Git submodule หรือ nested repository ใน `emioji-encoder/` และ `food-match/` — ทั้งหมดเป็นส่วนหนึ่งของ Repo หลัก
 
-> หมายเหตุ: ตัว Server ใช้ CPU โดยค่าเริ่มต้น และโมเดลเป็น Learned Lossy Codec ไม่ใช่ Encryption. ใช้ GitHub Repo นี้เป็น source เดียว ส่วน checkout เดิมนอกโฟลเดอร์เก็บไว้สำรองชั่วคราว
+## Commands
 
-
-## 04 / ครัวปิดจบ — Food Match
-
-นำโค้ดจาก food-match มารวมไว้ในโฟลเดอร์ food-match/ ภายใต้ repo เดียวกัน (ไม่มี nested Git หรือ submodule)
-โดยแสดงเป็นส่วนที่ 4 ต่อจาก Emoji Decoder ใช้ iframe same-origin แยก Worker/Canvas/CSS ไม่ให้ชนกับ Food Face
-
-- เลื่อนท้ายหน้า หรือกด 04 Food Match ในเมนู เพื่อเปิดระบบค้นหาอาหารแบบ lazy loading
-- กดปุ่มส่งภาพไปครัวสุดท้าย หลัง Decode เพื่อส่ง PNG ไป Food Match โดยตรง ไม่ต้องอัปโหลดซ้ำ
-- Food Match รองรับการอัปโหลดภาพอื่นเอง แสดงรูปอาหารที่ใกล้สุด และจัดพิกเซลของผู้ใช้เป็นภาพอาหาร
-- ดัชนี 50,000 ภาพและภาพ Food-101 เก็บที่ https://kiatisakk.github.io/food-match/data/ ไม่ถูกคัดลอกเข้า Git
-- ต้องมีอินเทอร์เน็ตเพื่อใช้งานส่วน Food Match และ Food-101 จำกัดการใช้งานเพื่อการวิจัย
-- โมเดล AI สำหรับ Encode/Decode ยังคงใช้ emioji-encoder/checkpoints/photos_v1.pt
-
-รันจาก repo root ด้วย npm run setup:python (ครั้งแรก) แล้ว npm start หากพอร์ต 5173 มีเซิร์ฟเวอร์เก่า ให้ปิดก่อน
-
-## ไฟล์
-
-| ไฟล์ | หน้าที่ |
+| คำสั่ง | ใช้ทำอะไร |
 | --- | --- |
-| `index.html` | โครงหน้าเว็บ |
-| `style.css` | หน้าเปิดและครัวโทนครีมกับสีซอสมะเขือเทศ รองรับมือถือและ reduced motion |
-| `menu.js` | รายการอาหาร: อีโมจิ, ชื่อ, ราคา, kcal — แก้ตรงนี้เพื่อเพิ่มเมนู |
-| `app.js` | จัดการรูป อัปเดตภาพจากแคช ทำใบเสร็จ บันทึก PNG |
-| `codec.js` | เชื่อม API, จัดการแท็บ Encoder/Decoder, ตรวจไฟล์ และคัดลอก/ดาวน์โหลดผลลัพธ์ |
-| `codec.css` | UI ครัว Encoder ที่ใช้สี ฟอนต์ และรูปแบบปุ่มของเว็บแรก |
-| `renderer.js` | วาดอาหารจาก sprite atlas และเตรียมภาพแต่ละระดับใน Web Worker |
-| `assets/` | ภาพมีมในเครื่องและ favicon |
+| `npm run setup:python` | สร้าง `emioji-encoder/.venv` และติดตั้ง Python dependencies |
+| `npm start` | เปิด Food Face พร้อม FastAPI บน `127.0.0.1:5173` |
+| `npm run start:static` | รันหน้า Frontend แบบ Static โดย **ไม่เปิด Python API** — ครัว Encoder/Decoder จะใช้งานไม่ได้ |
+| `npm run test:api` | ทดสอบ EmoCodec + FastAPI |
+| `npm run test:match` | ทดสอบการค้นหา/จัดพิกเซลของ Food Match |
 
-ความละเอียดเพิ่มทีละ 10 ตั้งแต่ 10 ถึง 300 (เริ่มต้น 50) ทุกครั้งที่อัปโหลดรูป Web Worker จะเตรียมภาพและยอดใบเสร็จครบ 30 ระดับไว้เบื้องหลัง โดยทำระดับที่เลือกก่อนแล้วไล่เตรียมระดับใกล้เคียง สไลเดอร์เรียกภาพที่เตรียมไว้ผ่าน `requestAnimationFrame` และ crossfade สั้น ๆ โดยไม่วาดอีโมจิใหม่ขณะลาก
+### Train โมเดลใหม่ด้วย Google Colab
 
-เมื่อเปลี่ยนรูป ความมั่ว ซอส หรือสั่งจานใหม่ จะยกเลิกงานชุดเก่า ล้างแคช และเตรียมชุดใหม่ หากเลือกขั้นที่ยังไม่พร้อม จะให้ขั้นนั้นทำก่อน พร้อมแสดงความคืบหน้า ถ้าเบราว์เซอร์ไม่มี Web Worker/OffscreenCanvas จะเตรียมภาพช่วงที่หน้าเว็บว่างแทน ภาพตัวอย่างมีด้านยาว 720 พิกเซล แคชครบ 30 ระดับใช้พื้นที่ bitmap ไม่เกินประมาณ 60 MiB พร้อมข้อมูลสีและอาหารแต่ละช่อง และคืนพื้นที่เมื่อเริ่มชุดใหม่ ส่วน PNG ใช้ข้อมูลอาหารชุดเดียวกับภาพที่เตรียมไว้ จึงตรงกับใบเสร็จ และวาดด้วยความละเอียดสูงสุด 4096 พิกเซล
+ไฟล์ Notebook: [`emioji-encoder/notebooks/EmoCodec_Train_Colab.ipynb`](emioji-encoder/notebooks/EmoCodec_Train_Colab.ipynb)
 
-## ภาพมีม
+อัปโหลด Notebook ไปยัง [Google Colab](https://colab.research.google.com/), เปิด GPU Runtime แล้วเทรนตามขั้นตอนในไฟล์ ดาวน์โหลด Checkpoint ที่ได้กลับมาไว้ใน `emioji-encoder/checkpoints/` จากนั้นเลือกใช้โดยตั้ง `EMOCODEC_CHECKPOINT` ก่อนรัน:
 
-- `shef.png`: ภาพที่ผู้ใช้ให้มา
-- `let-him-cook-rat.jpg`: [Would you let him cook? — Imgflip](https://imgflip.com/i/7imzuy)
-- `let-him-cook.png`: [Let Him Cook — Know Your Meme](https://knowyourmeme.com/photos/2517089-let-him-cook-let-that-boy-cook)
+```bash
+EMOCODEC_CHECKPOINT=emioji-encoder/checkpoints/photos_v1.pt npm start
+```
+
+หรือใช้ Path ของ Checkpoint อื่นที่มีอยู่จริง โมเดลเริ่มต้น `photos_v1.pt` (~3.6 MB) อยู่ใน Repo แล้ว **ไม่จำเป็นต้องเทรนเองเพื่อทดลองเว็บ**
+
+คู่มือเพิ่มเติม: [EmoCodec README](emioji-encoder/README.md) · [Colab Guide](emioji-encoder/docs/COLAB_GUIDE.md) · [Dataset Notes](emioji-encoder/docs/DATASETS.md)
+
+## API
+
+เมื่อรัน `npm start` จะใช้พอร์ตเดียวกันทั้งหน้าเว็บและ API:
+
+| Endpoint | หน้าที่ |
+| --- | --- |
+| `GET /` | หน้า Food Face |
+| `GET /api/status` | ตรวจสอบโมเดลที่กำลังใช้งาน |
+| `POST /api/encode` | รับไฟล์ภาพ แล้วคืนรหัส Emoji, Binary และภาพ Reconstruction |
+| `POST /api/decode` | รับสูตร Emoji หรือไฟล์เข้ารหัส แล้วคืนภาพที่ Decode |
+| `GET /food-match/index.html?embedded=1` | UI Food Match ภายในส่วนปิดจบ |
+
+ลองเช็กสถานะจาก Terminal:
+
+```bash
+curl http://127.0.0.1:5173/api/status
+```
+
+## Troubleshooting
+
+**`[Errno 48] address already in use` / Port 5173 ถูกใช้งาน**
+
+```bash
+lsof -nP -iTCP:5173 -sTCP:LISTEN
+```
+
+ปิดเซิร์ฟเวอร์เก่าด้วย `Ctrl+C` ใน Terminal นั้น หรือหยุดเฉพาะ PID ที่ตรวจสอบแล้วว่าเป็นเซิร์ฟเวอร์เก่าของคุณ จากนั้นรัน `npm start` ใหม่
+
+**Encoder ไม่พร้อม / ไม่พบโมเดล** — ตรวจว่าได้รัน `npm run setup:python` แล้ว และมีไฟล์ `emioji-encoder/checkpoints/photos_v1.pt`; ลองเปิด `/api/status`
+
+**Food Match ไม่แสดงเมนู** — ตรวจการเชื่อมต่ออินเทอร์เน็ตและการเข้าถึงข้อมูลที่ `https://kiatisakk.github.io/food-match/data/` เพราะข้อมูลไม่ได้อยู่ใน Repo และอาจโหลดช้าหรือบริการต้นทางไม่พร้อม
+
+**เปิด `index.html` ตรง ๆ** — หน้า Static บางส่วนอาจแสดงได้ แต่ API และการโหลดข้อมูล/Workers บางรายการจะไม่ทำงานตามปกติ ควรเปิดผ่าน `npm start`
+
+## Tech stack
+
+**Frontend:** HTML, CSS, Vanilla JavaScript, Canvas 2D, Web Workers, iframe + same-origin `postMessage`
+
+**AI / Backend:** Python, PyTorch (VQ-VAE), FastAPI, Uvicorn, Pillow, NumPy
+
+**Food Match:** Color signatures, histogram-based search, pixel reassignment, Food-101 research dataset index
+
+## Limitations & credits
+
+- ผลจากครัวแรกเป็น **งานภาพ/ความบันเทิง** ราคากับแคลอรี่ในใบเสร็จเป็นค่าที่แต่งขึ้น ไม่ใช่ข้อมูลโภชนาการ
+- EmoCodec **ไม่ใช่ระบบเข้ารหัสเพื่อความปลอดภัย** ไม่ควรส่งรูปส่วนตัวโดยคิดว่า Emoji จะทำให้ข้อมูลเป็นความลับ และภาพที่ Decode ได้เป็นแบบสูญเสียรายละเอียด
+- การ Encode/Decode ส่งภาพไปยัง **FastAPI บนเครื่อง/เซิร์ฟเวอร์ที่โฮสต์เว็บ** ไม่ใช่การประมวลผลในเบราว์เซอร์ล้วน ๆ หาก Deploy เป็น Public ต้องเสริมระบบป้องกันและจัดการข้อมูล
+- Food Match ใช้ดัชนีภาพ Food-101 และอาศัยข้อมูลภายนอก การทำงาน/ความเร็วขึ้นอยู่กับเครือข่ายและแหล่งข้อมูล ทั้งนี้ผลเป็นการ **ย้ายพิกเซล** ไม่ใช่สร้างภาพอาหารใหม่ด้วย Generative AI
+- ต้นทาง [Food-101 (ETH Zürich)](https://data.vision.ee.ethz.ch/cvl/datasets_extra/food-101/) — ตรวจเงื่อนไขและสิทธิ์การใช้ภาพก่อนเผยแพร่หรือใช้เชิงพาณิชย์
+- มีม: [Would you let him cook? — Imgflip](https://imgflip.com/i/7imzuy) และ [Let Him Cook — Know Your Meme](https://knowyourmeme.com/photos/2517089-let-him-cook-let-that-boy-cook)
+
+---
+
+*0 Michelin stars. Many experiments. Let him cook.*
