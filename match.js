@@ -19,7 +19,7 @@
     wrapper.hidden = false;
     section.setAttribute("aria-busy", "true");
     setStatus("กำลังเปิดครัวสุดท้าย และโหลดลายเซ็นอาหาร 50,000 รูป…");
-    iframe.src = "/food-match/index.html?embedded=1";
+    iframe.src = "food-match/index.html?embedded=1"; // relative: also works under /food-face/ on GitHub Pages
     trigger.textContent = "เปิดครัวแล้ว";
     trigger.disabled = true;
   }

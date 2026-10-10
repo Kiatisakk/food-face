@@ -66,15 +66,35 @@
     }
   }
 
+  // Two interchangeable engines: the local FastAPI server (npm start) when it is running, otherwise the same
+  // model exported to ONNX running in the browser (assets/emocodec/emocodec-web.js), e.g. on GitHub Pages.
+  let engine = null; // "api" | "browser"
+  const apiPath = path => new URL(path.replace(/^\//, ""), document.baseURI).href;
+  async function apiStatus() {
+    try {
+      const response = await fetch(apiPath("/api/status"), { signal: AbortSignal.timeout(4000) });
+      if (!response.ok || !(response.headers.get("content-type") || "").includes("json")) return null;
+      const status = await response.json();
+      return status.ready ? status : null;
+    } catch { return null; }
+  }
+
   async function checkStatus() {
     el("Retry").disabled = true;
     el("StatusLabel").textContent = "กำลังเช็กครัว…";
     try {
       if (location.protocol === "file:") throw new Error("เปิดเว็บผ่านเซิร์ฟเวอร์เพื่อใช้ครัวนี้");
-      const status = await requestJSON("/api/status", {}, 8000);
+      let status = await apiStatus();
+      engine = status ? "api" : null;
+      if (!status) {
+        if (!window.EmoCodecWeb) throw new Error("ครัวนี้ยังไม่มีโมเดลพร้อมใช้งาน");
+        el("StatusLabel").textContent = "กำลังยกโมเดลขึ้นเตาในเบราว์เซอร์…";
+        status = await window.EmoCodecWeb.status();
+        engine = "browser";
+      }
       modelReady = Boolean(status.ready);
       el("StatusLabel").textContent = modelReady
-        ? (status.demo_model ? "พร้อมใช้งาน · โมเดลทดลอง" : "ครัวพร้อมแปลงรูป")
+        ? (status.demo_model ? "พร้อมใช้งาน · โมเดลทดลอง" : engine === "browser" ? "ครัวพร้อมแปลงรูป · ทำในเบราว์เซอร์" : "ครัวพร้อมแปลงรูป")
         : "ยังไม่มีโมเดลพร้อมใช้งาน";
     } catch (error) {
       modelReady = false;
@@ -287,7 +307,8 @@
     resetEncodeResult();
     notice("เชฟกำลังแปลงรูปเป็นรหัสอีโมจิ…");
     try {
-      const data = await requestJSON("/api/encode", { method: "POST", body });
+      const data = engine === "browser" ? await window.EmoCodecWeb.encode(imageFile)
+        : await requestJSON(apiPath("/api/encode"), { method: "POST", body });
       showEncoded(data);
       notice("เข้ารหัสสำเร็จ! คัดลอกสูตร หรือส่งลงครัวสุดท้ายได้เลย");
     } catch (error) {
@@ -306,7 +327,9 @@
     resetDecodeResult();
     decodeNotice("เชฟกำลังประกอบรูปจากรหัสอีโมจิ…");
     try {
-      const data = await requestJSON("/api/decode", { method: "POST", body });
+      const data = engine === "browser"
+        ? await window.EmoCodecWeb.decode(codecFile ? { file: codecFile } : { text: el("DecodeText").value.trim() })
+        : await requestJSON(apiPath("/api/decode"), { method: "POST", body });
       showDecoded(data);
       decodeNotice("ประกอบรูปกลับแล้ว! รับรูปกลับบ้านได้เลย");
     } catch (error) {

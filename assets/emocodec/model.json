@@ -1,0 +1,13 @@
+{
+  "model_id": "d52e609a0b4475b186c58e7ca57234018cab1d7412a74acdb995d76406ec076c",
+  "model_file": "photos_v1.pt",
+  "alphabet_sha256": "bda7572219ee6ee6042455907d80aee57163537de980ab0e4afd1861a2982079",
+  "stride": 16,
+  "codebook_size": 256,
+  "architecture": {
+    "hidden": 48,
+    "embedding_dim": 64,
+    "codebook_size": 256,
+    "beta": 0.25
+  }
+}
