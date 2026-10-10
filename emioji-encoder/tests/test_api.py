@@ -22,11 +22,20 @@ class APITests(unittest.TestCase):
         response = client.get("/")
         self.assertEqual(response.status_code, 200)
         self.assertIn('id="welcome"', response.text)
+        self.assertIn('id="food-match-finale"', response.text)
+        self.assertIn('id="codecToMatch"', response.text)
         self.assertLess(response.text.index('id="food-kitchen"'), response.text.index('id="emoji-codec"'))
-        for name in ("style.css", "codec.css", "menu.js", "renderer.js", "app.js", "codec.js", "assets/shef.png"):
+        for name in ("style.css", "codec.css", "menu.js", "renderer.js", "app.js", "codec.js", "assets/shef.png", "match.js", "match.css"):
             response = client.get(f"/{name}")
             self.assertEqual(response.status_code, 200, name)
             self.assertTrue(response.content, name)
+        for filename in ("index.html", "app.js", "bridge.js", "style.css", "worker.js", "assign-worker.js", "score-worker.js", "sigcore.js", "core.js"):
+            response = client.get(f"/food-match/{filename}")
+            self.assertEqual(response.status_code, 200, filename)
+            self.assertTrue(response.content)
+        for filename in ("README.md", "download.py", "nonexistent", ".gitignore"):
+            self.assertEqual(client.get(f"/food-match/{filename}").status_code, 404, filename)
+        self.assertLess(response.text.find("</html>"), len(response.text))
         for path in ("/README.md", "/package.json", "/.git/config", "/missing.js"):
             self.assertEqual(client.get(path).status_code, 404, path)
 

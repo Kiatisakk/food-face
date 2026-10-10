@@ -361,6 +361,15 @@
       block: "start"
     });
   });
+  el("ToMatch").addEventListener("click", () => {
+    if (!decodeResult?.reconstructed_png_base64 || working) return;
+    if (window.foodFaceMatch?.sendDecoded) {
+      window.foodFaceMatch.sendDecoded(decodeResult.reconstructed_png_base64);
+    } else {
+      decodeNotice("ยังเปิดครัวสุดท้ายไม่ได้ ลองรีเฟรชเว็บ");
+    }
+  });
+
   el("SaveImage").addEventListener("click", () => {
     if (decodeResult?.reconstructed_png_base64) download(fromBase64(decodeResult.reconstructed_png_base64),
       "let-him-cook-reconstructed.png", "image/png");

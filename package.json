@@ -6,6 +6,8 @@
   "scripts": {
     "start": "emioji-encoder/.venv/bin/python -m uvicorn apps.api.main:app --app-dir emioji-encoder --host 127.0.0.1 --port 5173",
     "start:static": "npx --yes serve -l 5173 .",
-    "setup:python": "python3 -m venv emioji-encoder/.venv && emioji-encoder/.venv/bin/python -m pip install -e './emioji-encoder[web]'"
+    "setup:python": "python3 -m venv emioji-encoder/.venv && emioji-encoder/.venv/bin/python -m pip install -e './emioji-encoder[web]'",
+    "test:match": "node food-match/test.js",
+    "test:api": "cd emioji-encoder && .venv/bin/python -m unittest discover -s tests -v"
   }
 }

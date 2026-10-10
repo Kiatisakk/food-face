@@ -5,3 +5,12 @@ node_modules/
 !.env.example
 .npm/
 *.log
+
+# Food Match dataset is provided remotely; never commit bulk research images
+food-match/data/
+food-match/raw/
+food-match/cache/
+food-match/site/
+food-match/node_modules/
+food-match/fake_data/
+food-match/__pycache__/

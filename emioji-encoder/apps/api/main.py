@@ -20,7 +20,8 @@ from emocodec.utils.images import load_rgb, metrics
 app = FastAPI(title="EmoCodec API", version="0.1.0")
 ROOT = Path(__file__).resolve().parents[2]
 FRONTEND = ROOT.parent  # food-face repository root (EmoCodec is nested)
-FRONTEND_FILES = {"style.css", "codec.css", "menu.js", "renderer.js", "app.js", "codec.js"}
+FRONTEND_FILES = {"style.css", "codec.css", "menu.js", "renderer.js", "app.js", "codec.js", "match.js", "match.css"}
+FOOD_MATCH_FILES = {"index.html", "style.css", "app.js", "bridge.js", "core.js", "sigcore.js", "worker.js", "assign-worker.js", "score-worker.js"}
 MAX_UPLOAD = 8 * 1024 * 1024
 MAX_DIMENSION = 2048
 
@@ -119,3 +120,12 @@ def frontend_file(filename: str):
     if filename not in FRONTEND_FILES or not (FRONTEND / filename).is_file():
         raise HTTPException(404, "Not found")
     return FileResponse(FRONTEND / filename)
+
+
+@app.get("/food-match/{filename}", include_in_schema=False)
+def food_match_file(filename: str):
+    """Serve only explicit Food Match browser resources from this repository."""
+    directory = FRONTEND / "food-match"
+    if filename not in FOOD_MATCH_FILES or not (directory / filename).is_file():
+        raise HTTPException(404, "Not found")
+    return FileResponse(directory / filename)
