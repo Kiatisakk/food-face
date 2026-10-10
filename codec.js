@@ -93,6 +93,10 @@
         engine = "browser";
       }
       modelReady = Boolean(status.ready);
+      const privacy = document.querySelector(".codec-privacy");
+      if (privacy) privacy.textContent = engine === "browser"
+        ? "รูปในครัวนี้ประมวลผลในเบราว์เซอร์ของคุณ ไม่ถูกอัปโหลดไปไหน"
+        : "รูปในครัวนี้ส่งให้เซิร์ฟเวอร์ EmoCodec บนเครื่องคุณประมวลผล";
       el("StatusLabel").textContent = modelReady
         ? (status.demo_model ? "พร้อมใช้งาน · โมเดลทดลอง" : engine === "browser" ? "ครัวพร้อมแปลงรูป · ทำในเบราว์เซอร์" : "ครัวพร้อมแปลงรูป")
         : "ยังไม่มีโมเดลพร้อมใช้งาน";

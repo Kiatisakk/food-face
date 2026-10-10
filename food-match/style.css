@@ -82,3 +82,14 @@ html.embedded .card { border-radius: 3px; }
   html.embedded .wrap { padding: 3px 0 12px; }
   html.embedded .card { padding: 12px; }
 }
+
+/* Phones/tablets (one column): show the result right after the user's photo, controls below it */
+@media (max-width: 820px) {
+  #work > .left, #work > .right { display: contents; }
+  #work > .left > .card:first-child { order: 1; }
+  #work > .right > .counter { order: 2; }
+  #work > .right > .card:nth-of-type(1) { order: 3; }
+  #work > .left > .ctls { order: 4; }
+  #work > .right > .card:nth-of-type(2) { order: 5; }
+  #work > .right > .card:nth-of-type(3) { order: 6; }
+}
