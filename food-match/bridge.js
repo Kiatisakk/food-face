@@ -9,7 +9,11 @@
     pending = true;
     requestAnimationFrame(() => {
       pending = false;
-      const h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+      // Measure the content, not the document: documentElement.scrollHeight is never smaller than the
+      // iframe itself, so reporting it made the parent grow the iframe a little on every resize
+      // (500px -> 4200px of empty space).
+      const wrap = document.querySelector(".wrap");
+      const h = Math.ceil(wrap.getBoundingClientRect().bottom + window.scrollY);
       if (h !== lastHeight) {
         lastHeight = h;
         notify({ type: "foodmatch:height", height: h });
